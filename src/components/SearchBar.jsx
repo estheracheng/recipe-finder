@@ -1,13 +1,32 @@
-export default function SearchBar({ search, setSearch }) {
+import { useState } from "react";
+import { Search } from "lucide-react";
+
+export default function SearchBar({ placeholder, onSearch }) {
+  const [query, setQuery] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(query);
+  };
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+    onSearch(value); // Real-time search
+  };
+
   return (
-    <div className="w-full max-w-xl relative mb-6">
-      <input
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search your desired recipe..."
-        className="w-full px-5 py-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none text-gray-700 placeholder-gray-400"
-      />
-    </div>
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={query}
+          onChange={handleChange}
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        />
+      </div>
+    </form>
   );
 }
