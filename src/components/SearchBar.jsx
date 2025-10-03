@@ -1,24 +1,4 @@
-import { useState, useEffect } from "react";
-
-export default function SearchBar({ recipes, onResults }) {
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    if (!search) {
-      onResults(recipes); // no search → show all
-    } else {
-      const lower = search.toLowerCase();
-      const filtered = recipes.filter(
-        (recipe) =>
-          recipe.name.toLowerCase().includes(lower) ||
-          recipe.cuisine.toLowerCase().includes(lower) ||
-          recipe.tags?.some((tag) => tag.toLowerCase().includes(lower)) ||
-          recipe.ingredients?.some((ing) => ing.toLowerCase().includes(lower))
-      );
-      onResults(filtered);
-    }
-  }, [search, recipes, onResults]);
-
+export default function SearchBar({ search, setSearch }) {
   return (
     <div className="w-full max-w-xl relative mb-6">
       <input
