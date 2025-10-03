@@ -1,10 +1,13 @@
 import { useEffect, useState, useRef } from "react";
-import CategoryCard from "../components/CategoryCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import CategoryCard from "../components/CategoryCard";
+import SearchBar from "../components/SearchBar";
 
 export default function Home() {
   const [cuisines, setCuisines] = useState([]);
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("https://dummyjson.com/recipes")
@@ -16,7 +19,9 @@ export default function Home() {
             cuisineMap[recipe.cuisine] = recipe.image;
           }
         });
-        setCuisines(Object.entries(cuisineMap).map(([name, image]) => ({ name, image })));
+        setCuisines(
+          Object.entries(cuisineMap).map(([name, image]) => ({ name, image }))
+        );
       });
   }, []);
 
@@ -40,10 +45,9 @@ export default function Home() {
 
       {/* Search Bar */}
       <div className="w-full max-w-xl relative mb-10">
-        <input
+        <SearchBar
           type="text"
           placeholder="Search your desired recipe..."
-          className="w-full px-5 py-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none text-gray-700 placeholder-gray-400"
         />
       </div>
 
@@ -63,7 +67,13 @@ export default function Home() {
           className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide px-10"
         >
           {cuisines.map((cuisine, i) => (
-            <CategoryCard key={i} name={cuisine.name} image={cuisine.image} />
+            <div
+              key={i}
+              onClick={() => navigate(`/browse?cuisine=${cuisine.name}`)}
+              className="cursor-pointer"
+            >
+              <CategoryCard name={cuisine.name} image={cuisine.image} />
+            </div>
           ))}
         </div>
 
