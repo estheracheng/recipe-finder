@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Clock, Star, Users, ArrowLeft, Heart } from "lucide-react";
+import { Clock, Star, Users, ArrowLeft, Heart, ShoppingCart } from "lucide-react";
 import { useRecipe } from "../context/RecipeContext";
+import { useShoppingList } from "../context/ShoppingListContext";
 
 export default function RecipeDetail() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useRecipe();
+  const { addToShoppingList } = useShoppingList();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRecipeFavorite, setIsRecipeFavorite] = useState(false);
@@ -32,6 +34,14 @@ export default function RecipeDetail() {
         difficulty: recipe.difficulty
       });
       setIsRecipeFavorite(!isRecipeFavorite);
+    }
+  };
+
+  const handleAddToShoppingList = () => {
+    if (recipe) {
+      addToShoppingList(recipe.ingredients, recipe.name);
+      // You can replace this with a toast notification later
+      alert(`Added ${recipe.ingredients.length} ingredients from "${recipe.name}" to your shopping list!`);
     }
   };
 
@@ -127,23 +137,43 @@ export default function RecipeDetail() {
               </div>
             </div>
 
-            <button 
-              onClick={handleToggleFavorite}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full transition-colors ${
-                isRecipeFavorite 
-                  ? "bg-red-500 text-white hover:bg-red-600" 
-                  : "bg-white border border-[#F8AFA6] text-gray-800 hover:bg-[#F8AFA6]"
-              }`}
-            >
-              <Heart className="w-5 h-5" fill={isRecipeFavorite ? "currentColor" : "none"} />
-              {isRecipeFavorite ? "Saved to Favorites" : "Save Recipe"}
-            </button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button 
+                onClick={handleToggleFavorite}
+                className={`flex items-center gap-2 px-6 py-3 rounded-full transition-colors ${
+                  isRecipeFavorite 
+                    ? "bg-red-500 text-white hover:bg-red-600" 
+                    : "bg-white border border-[#F8AFA6] text-gray-800 hover:bg-[#F8AFA6]"
+                }`}
+              >
+                <Heart className="w-5 h-5" fill={isRecipeFavorite ? "currentColor" : "none"} />
+                {isRecipeFavorite ? "Saved to Favorites" : "Save Recipe"}
+              </button>
+              
+              <button 
+                onClick={handleAddToShoppingList}
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Add to Shopping List
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Ingredients */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">Ingredients</h2>
+            <button 
+              onClick={handleAddToShoppingList}
+              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full transition-colors text-sm"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Add All to List
+            </button>
+          </div>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {recipe.ingredients.map((ingredient, index) => (
               <li key={index} className="flex items-center gap-2 text-gray-700">
