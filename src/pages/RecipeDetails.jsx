@@ -1,21 +1,39 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, Star, Users, ArrowLeft, Heart } from "lucide-react";
+import { useRecipe } from "../context/RecipeContext";
 
 export default function RecipeDetail() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
+  const { isFavorite, toggleFavorite } = useRecipe();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRecipeFavorite, setIsRecipeFavorite] = useState(false);
 
   useEffect(() => {
     fetch(`https://dummyjson.com/recipes/${recipeId}`)
       .then(res => res.json())
       .then(data => {
         setRecipe(data);
+        setIsRecipeFavorite(isFavorite(data.id));
         setLoading(false);
       });
-  }, [recipeId]);
+  }, [recipeId, isFavorite]);
+
+  const handleToggleFavorite = () => {
+    if (recipe) {
+      toggleFavorite({
+        id: recipe.id,
+        title: recipe.name,
+        summary: `A delicious ${recipe.cuisine} recipe`,
+        image: recipe.image,
+        cookingTime: `${recipe.prepTimeMinutes + recipe.cookTimeMinutes} mins`,
+        difficulty: recipe.difficulty
+      });
+      setIsRecipeFavorite(!isRecipeFavorite);
+    }
+  };
 
   if (loading) {
     return (
@@ -48,13 +66,22 @@ export default function RecipeDetail() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-[#F8AFA6] py-4 px-6">
-        <button 
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-800 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back
-        </button>
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-800 hover:text-gray-900"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+          <button 
+            onClick={() => navigate('/favorites')}
+            className="flex items-center gap-2 text-gray-800 hover:text-gray-900"
+          >
+            <Heart className="w-5 h-5" fill={isRecipeFavorite ? "currentColor" : "none"} />
+            My Favorites
+          </button>
+        </div>
       </div>
 
       {/* Recipe Content */}
@@ -100,9 +127,16 @@ export default function RecipeDetail() {
               </div>
             </div>
 
-            <button className="flex items-center gap-2 bg-white border border-[#F8AFA6] text-gray-800 px-6 py-2 rounded-full hover:bg-[#F8AFA6] transition-colors">
-              <Heart className="w-5 h-5" />
-              Save Recipe
+            <button 
+              onClick={handleToggleFavorite}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full transition-colors ${
+                isRecipeFavorite 
+                  ? "bg-red-500 text-white hover:bg-red-600" 
+                  : "bg-white border border-[#F8AFA6] text-gray-800 hover:bg-[#F8AFA6]"
+              }`}
+            >
+              <Heart className="w-5 h-5" fill={isRecipeFavorite ? "currentColor" : "none"} />
+              {isRecipeFavorite ? "Saved to Favorites" : "Save Recipe"}
             </button>
           </div>
         </div>
